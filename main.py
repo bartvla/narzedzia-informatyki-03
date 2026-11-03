@@ -81,6 +81,17 @@ class Transfer(BaseModel):
         assert isinstance(data, list), "Expected a list of transfers"
         return [Transfer(**transfer) for transfer in data]
 
+class TenantSettlement(BaseModel):
+    tenant: str
+    apartment_settlement: str
+    year: int
+    month: int
+    rent_pln: float
+    bills_pln: float
+    total_due_pln: float
+    total_transfers_pln: float
+    balance_pln: float
+
 
 class Bill(BaseModel):
     amount_pln: float
@@ -116,6 +127,38 @@ class Manager:
         self.transfers = Transfer.from_json_file(self.parameters.transfers_json_path)
         self.bills = Bill.from_json_file(self.parameters.bills_json_path)
 
+    def get_settlement(self, tenant_key: str, year: int, month: int) -> TenantSettlement:
+        tenant = self.tenants[tenant_key]
+
+        apartment_bills = 0
+        for bill in self.bills:
+            if bill.apartment == tenant.apartment and bill.settlement_year == year and bill.settlement_month == month:
+                apartment_bills += bill.amount_pln
+
+        tenants_count = 0
+        for other_tenant in self.tenants.values():
+            if other_tenant.apartment == tenant.apartment:
+                tenants_count += 1
+        bills_share = apartment_bills / tenants_count
+
+        total_transfers = 0
+        for transfer in self.transfers:
+            if transfer.tenant == tenant_key and transfer.settlement_year == year and transfer.settlement_month == month:
+                total_transfers += transfer.amount_pln
+
+        total_due = tenant.rent_pln + bills_share
+        return TenantSettlement(
+            tenant=tenant_key,
+            apartment_settlement=f'{tenant.apartment}-{year}-{month:02d}',
+            year=year,
+            month=month,
+            rent_pln=tenant.rent_pln,
+            bills_pln=bills_share,
+            total_due_pln=total_due,
+            total_transfers_pln=total_transfers,
+            balance_pln=total_transfers - total_due,
+        )
+
 
 if __name__ == '__main__':
     parameters = Parameters()
@@ -125,7 +168,7 @@ if __name__ == '__main__':
         print(apartment.key, apartment.name, apartment.location, apartment.area_m2)
         for room in apartment.rooms.values():
             print('  ', room.name, room.area_m2)
-        
+
         for bill in manager.bills:
             if bill.apartment == apartment.key:
                 print('  ', bill.amount_pln, bill.date_due, bill.settlement_year, bill.settlement_month, bill.type)
@@ -135,3 +178,6 @@ if __name__ == '__main__':
         for transfer in manager.transfers:
             if transfer.tenant == tenant.name:
                 print('  ', transfer.amount_pln, transfer.date, transfer.settlement_year, transfer.settlement_month)
+
+    for tenant_key in manager.tenants:
+        print(manager.get_settlement(tenant_key, 2025, 2))
