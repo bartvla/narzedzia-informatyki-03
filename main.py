@@ -1,3 +1,4 @@
+from sqlalchemy.util.cython import double
 from pydantic import BaseModel
 from typing import Dict, List
 
@@ -15,6 +16,20 @@ class Room(BaseModel):
     name: str
     area_m2: float
 
+class ApartmentSettlement(BaseModel):
+    name: str
+    room: str
+    rent_pln: double
+    date_agreement_from: str
+    date_agreement_to: str
+
+    @staticmethod
+    def from_json_file(file_path: str):
+            data = None
+            with open(file_path, 'r') as file:
+                data = json.load(file)
+            assert isinstance(data, dict), "Expected a dictionary of tenants"
+            return {key: {"rent_pln": tenant["rent_pln"], "room":tenant["room"],"name":tenant["name"]} for key, tenant in data.items()}
 
 class Apartment(BaseModel):
     key: str
@@ -28,7 +43,8 @@ class Apartment(BaseModel):
         data = None
         with open(file_path, 'r') as file:
             data = json.load(file)
-        assert isinstance(data, dict), "Expected a dictionary of apartments"
+        assert isinstance(data, dict), "Expected a dictionary of tenants"
+
         return {key: Apartment(**apartment) for key, apartment in data.items()}
 
     
