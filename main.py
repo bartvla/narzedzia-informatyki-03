@@ -1,5 +1,12 @@
+from sqlalchemy.util.cython import double
+
 from pydantic import BaseModel
 from typing import Dict, List
+
+
+
+
+
 import json
 
 class Parameters(BaseModel):
@@ -47,7 +54,7 @@ class Tenant(BaseModel):
     apartment: str
     room: str
     rent_pln: float
-    deposit_pln: float
+    deposit_pln: double
     date_agreement_from: str
     date_agreement_to: str
 
@@ -127,7 +134,7 @@ class Manager:
         tenants_count = 0
         for other_tenant in self.tenants.values():
             if other_tenant.apartment == tenant.apartment:
-                tenants_count += 1
+                tenants_count += 1.0
         bills_share = apartment_bills / tenants_count
 
         total_transfers = 0
@@ -138,14 +145,10 @@ class Manager:
         total_due = tenant.rent_pln + bills_share
 
         return TenantSettlement(
-            tenant=tenant_key,
-            apartment_settlement=f'{tenant.apartment}-{year}-{month:02d}',
-            year=year,
-            month=month,
-            rent_pln=tenant.rent_pln,
-            bills_pln=bills_share,
-            total_due_pln=total_due,
-            total_transfers_pln=total_transfers,
+            tenant=tenant_key, apartment_settlement=f'{tenant.apartment}-{year}-{month:02d}',
+            year=year, month=month,
+            rent_pln=tenant.rent_pln, bills_pln=bills_share,
+            total_due_pln=total_due, total_transfers_pln=total_transfers,
             balance_pln=total_transfers - total_due,
         )
 
@@ -161,13 +164,13 @@ if __name__ == '__main__':
         print("\nBills:")
         for bill in manager.bills:
             if bill.apartment == apartment.key:
-                print('  ', bill.amount_pln, bill.date_due, bill.settlement_year, bill.settlement_month, bill.type)
-    print("\nTenants: ")
+                print(bill.amount_pln, bill.date_due, bill.settlement_year, bill.settlement_month, bill.type)
+
     for tenant in manager.tenants.values():
         print(tenant.name, tenant.apartment, tenant.room, tenant.rent_pln, tenant.deposit_pln, tenant.date_agreement_from, tenant.date_agreement_to)
         for transfer in manager.transfers:
             if transfer.tenant == tenant.name:
-                print('  ', transfer.amount_pln, transfer.date, transfer.settlement_year, transfer.settlement_month)
-    print("\nSettlements:")
+                print(transfer.amount_pln, transfer.date, transfer.settlement_year, transfer.settlement_month)
+
     for tenant_key in manager.tenants:
         print(manager.get_settlement(tenant_key, 2025, 2))
