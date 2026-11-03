@@ -1,4 +1,4 @@
-from sqlalchemy.util.cython import double
+
 from pydantic import BaseModel
 from typing import Dict, List
 
@@ -19,7 +19,7 @@ class Room(BaseModel):
 class ApartmentSettlement(BaseModel):
     name: str
     room: str
-    rent_pln: double
+    rent_pln: float
     date_agreement_from: str
     date_agreement_to: str
 
