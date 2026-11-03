@@ -1,16 +1,12 @@
-
 from pydantic import BaseModel
 from typing import Dict, List
-
 import json
-
 
 class Parameters(BaseModel):
     apartments_json_path: str = 'data/apartments.json'
     tenants_json_path: str = 'data/tenants.json'
     transfers_json_path: str = 'data/transfers.json'
     bills_json_path: str = 'data/bills.json'
-
 
 class Room(BaseModel):
     name: str
@@ -44,9 +40,7 @@ class Apartment(BaseModel):
         with open(file_path, 'r') as file:
             data = json.load(file)
         assert isinstance(data, dict), "Expected a dictionary of tenants"
-
         return {key: Apartment(**apartment) for key, apartment in data.items()}
-
     
 class Tenant(BaseModel):
     name: str
@@ -64,7 +58,6 @@ class Tenant(BaseModel):
             data = json.load(file)
         assert isinstance(data, dict), "Expected a dictionary of tenants"
         return {key: Tenant(**tenant) for key, tenant in data.items()}
-    
 
 class Transfer(BaseModel):
     amount_pln: float
@@ -92,7 +85,6 @@ class TenantSettlement(BaseModel):
     total_transfers_pln: float
     balance_pln: float
 
-
 class Bill(BaseModel):
     amount_pln: float
     date_due: str
@@ -109,16 +101,13 @@ class Bill(BaseModel):
         assert isinstance(data, list), "Expected a list of bills"
         return [Bill(**bill) for bill in data]
 
-
 class Manager:
     def __init__(self, parameters: Parameters):
-        self.parameters = parameters 
-
+        self.parameters = parameters
         self.apartments = {}
         self.tenants = {}
         self.transfers = []
         self.bills = []
-       
         self.load_data()
 
     def load_data(self):
@@ -147,6 +136,7 @@ class Manager:
                 total_transfers += transfer.amount_pln
 
         total_due = tenant.rent_pln + bills_share
+
         return TenantSettlement(
             tenant=tenant_key,
             apartment_settlement=f'{tenant.apartment}-{year}-{month:02d}',
@@ -158,7 +148,6 @@ class Manager:
             total_transfers_pln=total_transfers,
             balance_pln=total_transfers - total_due,
         )
-
 
 if __name__ == '__main__':
     parameters = Parameters()
