@@ -5,5 +5,19 @@
         "settlement_year": 2025,
         "settlement_month": 2,
         "tenant": "tenant-1"
+    },
+    {
+        "amount_pln": 1500,
+        "date": "2025-04-04",
+        "settlement_year": 2025,
+        "settlement_month": 2,
+        "tenant": "tenant-1"
+    },
+    {
+        "amount_pln": 2000,
+        "date": "2025-06-04",
+        "settlement_year": 2025,
+        "settlement_month": 2,
+        "tenant": "tenant-1"
     }
 ]
