@@ -6,5 +6,13 @@
         "settlement_month": 1,
         "apartment": "apart-polanka",
         "type": "rent"
+    },
+    {
+        "amount_pln": 800.00,
+        "date_due": "2026-02-01",
+        "settlement_year": 2026,
+        "settlement_month": 1,
+        "apartment": "apart-polanka",
+        "type": "rent"
     }
 ]
